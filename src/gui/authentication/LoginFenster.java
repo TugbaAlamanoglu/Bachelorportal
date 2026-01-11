@@ -3,7 +3,6 @@ package gui.authentication;
 import datenbank.UserDAO;
 import datenbank.UserLoginResult;
 import gui.betreuer.BetreuerFenster;
-import gui.betreuer.DashboardBetreuer;
 import gui.dekan.StudiendekanPortalFrame;
 import gui.student.StudentFenster;
 import gui.shared.RoundPanel;
@@ -45,12 +44,10 @@ public class LoginFenster extends JFrame {
         card.setFill(UIColors.CARD_BG);
         card.setLayout(new BorderLayout());
         card.setPreferredSize(new Dimension(CARD_W, CARD_H));
-        card.setMinimumSize(new Dimension(CARD_W, CARD_H));
-        card.setMaximumSize(new Dimension(CARD_W, CARD_H));
 
         card.add(buildContent(), BorderLayout.CENTER);
-
         root.add(card);
+
         setContentPane(root);
     }
 
@@ -60,7 +57,6 @@ public class LoginFenster extends JFrame {
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBorder(new EmptyBorder(36, 50, 36, 50));
 
-        // Logo
         p.add(center(makeLogo(80)));
         p.add(Box.createVerticalStrut(16));
 
@@ -85,7 +81,6 @@ public class LoginFenster extends JFrame {
 
         p.add(Box.createVerticalStrut(30));
 
-        // --- E-Mail ---
         p.add(left(label("E-Mail *")));
         p.add(Box.createVerticalStrut(8));
 
@@ -95,7 +90,6 @@ public class LoginFenster extends JFrame {
 
         p.add(Box.createVerticalStrut(18));
 
-        // --- Passwort ---
         p.add(left(label("Passwort *")));
         p.add(Box.createVerticalStrut(8));
 
@@ -105,7 +99,6 @@ public class LoginFenster extends JFrame {
 
         p.add(Box.createVerticalStrut(18));
 
-        // --- Fehlerbox ---
         errorBox = new JPanel(new BorderLayout());
         errorBox.setBackground(new Color(0xFDECEC));
         errorBox.setBorder(BorderFactory.createCompoundBorder(
@@ -117,40 +110,22 @@ public class LoginFenster extends JFrame {
         errorLabel = new JLabel(" ");
         errorLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         errorLabel.setForeground(new Color(0xDC2626));
-        errorBox.add(errorLabel, BorderLayout.CENTER);
+        errorBox.add(errorLabel);
 
         fixSize(errorBox, FIELD_W, 44);
         p.add(center(errorBox));
 
         p.add(Box.createVerticalStrut(18));
 
-        // --- Button ---
         JButton btnLogin = new JButton("Einloggen");
         btnLogin.setFont(new Font("SansSerif", Font.BOLD, 16));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setBackground(UIColors.PRIMARY);
         btnLogin.setFocusPainted(false);
         btnLogin.setBorderPainted(false);
-        btnLogin.setOpaque(true);
-        btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         fixSize(btnLogin, FIELD_W, BTN_H);
         btnLogin.addActionListener(e -> onLogin());
         p.add(center(btnLogin));
-
-        p.add(Box.createVerticalStrut(18));
-
-        JLabel link = new JLabel("<html><u>Neuer Benutzer? Jetzt registrieren</u></html>");
-        link.setFont(new Font("SansSerif", Font.BOLD, 14));
-        link.setForeground(UIColors.LINK);
-        link.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        link.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                new NeuerBenutzerFenster().setVisible(true);
-                dispose();
-            }
-        });
-        p.add(center(link));
 
         p.add(Box.createVerticalGlue());
         return p;
@@ -159,28 +134,23 @@ public class LoginFenster extends JFrame {
     private void onLogin() {
         clearError();
 
-        String email = tfEmail.getRealText();
-        String pass = pfPasswort.getRealPassword();
-
-        if (email.isEmpty() || pass.isEmpty()) {
-            showError("Bitte füllen Sie alle Felder aus.");
-            return;
-        }
-
         try {
-            UserLoginResult result = UserDAO.login(email, pass);
+            UserLoginResult result = UserDAO.login(
+                    tfEmail.getRealText(),
+                    pfPasswort.getRealPassword()
+            );
+
             if (result == null) {
                 showError("E-Mail oder Passwort ist falsch.");
                 return;
             }
 
-            String rolle = result.getRolle().toLowerCase();
             String name = result.getFullName();
             String mail = result.getEmail();
 
-            switch (rolle) {
+            switch (result.getRolle()) {
                 case "student" -> new StudentFenster(result.getMnr(), name, mail).setVisible(true);
-                case "betreuer" -> new BetreuerFenster(name, mail).setVisible(true);
+                case "betreuer" -> new BetreuerFenster(result.getMnr(), name, mail).setVisible(true);
                 case "dekan" -> new StudiendekanPortalFrame(name, mail).setVisible(true);
                 default -> showError("Unbekannte Rolle.");
             }
@@ -188,25 +158,17 @@ public class LoginFenster extends JFrame {
             dispose();
 
         } catch (Exception ex) {
-            showError("Datenbankfehler.");
             ex.printStackTrace();
+            showError("Datenbankfehler.");
         }
     }
 
-    // ---------- Helper ----------
+    // ---------- Helper (unverändert) ----------
+    private void showError(String msg) { errorLabel.setText(msg); errorBox.setVisible(true); }
+    private void clearError() { errorBox.setVisible(false); }
 
-    private void showError(String msg) {
-        errorLabel.setText(msg);
-        errorBox.setVisible(true);
-    }
-
-    private void clearError() {
-        errorLabel.setText(" ");
-        errorBox.setVisible(false);
-    }
-
-    private JLabel label(String text) {
-        JLabel l = new JLabel(text);
+    private JLabel label(String t) {
+        JLabel l = new JLabel(t);
         l.setFont(new Font("SansSerif", Font.BOLD, 14));
         l.setForeground(UIColors.TEXT_DARK);
         return l;
@@ -215,9 +177,7 @@ public class LoginFenster extends JFrame {
     private void fixSize(JComponent c, int w, int h) {
         Dimension d = new Dimension(w, h);
         c.setPreferredSize(d);
-        c.setMinimumSize(d);
         c.setMaximumSize(d);
-        c.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
     private JPanel left(JComponent c) {
@@ -236,25 +196,13 @@ public class LoginFenster extends JFrame {
 
     private JComponent makeLogo(int size) {
         return new JComponent() {
-            @Override public Dimension getPreferredSize() {
-                return new Dimension(size, size);
-            }
-
             @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+                Graphics2D g2 = (Graphics2D) g;
                 g2.setColor(UIColors.PRIMARY);
                 g2.fillOval(0, 0, size, size);
-
                 g2.setColor(Color.WHITE);
                 g2.setFont(new Font("SansSerif", Font.BOLD, size / 3));
-                FontMetrics fm = g2.getFontMetrics();
-                g2.drawString("HFT",
-                        (size - fm.stringWidth("HFT")) / 2,
-                        (size + fm.getAscent()) / 2 - 2);
-
-                g2.dispose();
+                g2.drawString("HFT", size / 4, size / 2 + 6);
             }
         };
     }
