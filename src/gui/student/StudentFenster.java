@@ -14,6 +14,8 @@ public class StudentFenster extends JFrame {
     public static final String PAGE_ANMELDUNG    = "anmeldung";
     public static final String PAGE_ARBEITSSTAND = "arbeitsstand";
     public static final String PAGE_ABGABE       = "abgabe";
+    public static final String PAGE_BACHELORSEMINAR = "bachelorseminar";
+    public static final String PAGE_NOTE         = "note";
 
     // ---- Farben (Figma-like) ----
     static final Color BG = new Color(246, 248, 252);
@@ -37,6 +39,8 @@ public class StudentFenster extends JFrame {
     private NavButton btnAnmeldung;
     private NavButton btnArbeitsstand;
     private NavButton btnAbgabe;
+    private NavButton btnBachelorseminar;
+    private NavButton btnNote;
 
     public StudentFenster(int mnr, String name, String email) {
         super("Bachelorarbeits-Portal");
@@ -64,9 +68,9 @@ public class StudentFenster extends JFrame {
         content.add(new AllgemeineInformationenStudent(this, mnr, name, email), PAGE_ALLGEMEIN);
         content.add(new AnmeldungBachelorarbeitStudent(this, mnr, name, email), PAGE_ANMELDUNG);
         content.add(new ArbeitsstandStudent(this, mnr, name, email), PAGE_ARBEITSSTAND);
-
-        // ✅ FIX: Abgabe-Seite wirklich hinzufügen
         content.add(new AbgabeBachelorarbeit(this, mnr, name, email), PAGE_ABGABE);
+        content.add(new BachelorseminarPage(this, mnr, name, email), PAGE_BACHELORSEMINAR);
+        content.add(new NotePage(this, mnr, name, email), PAGE_NOTE);
 
         right.add(content, BorderLayout.CENTER);
         root.add(right, BorderLayout.CENTER);
@@ -84,6 +88,8 @@ public class StudentFenster extends JFrame {
         btnAnmeldung.setSelected(PAGE_ANMELDUNG.equals(page));
         btnArbeitsstand.setSelected(PAGE_ARBEITSSTAND.equals(page));
         btnAbgabe.setSelected(PAGE_ABGABE.equals(page));
+        btnBachelorseminar.setSelected(PAGE_BACHELORSEMINAR.equals(page));
+        btnNote.setSelected(PAGE_NOTE.equals(page));
     }
 
     // ---------- Sidebar ----------
@@ -134,20 +140,24 @@ public class StudentFenster extends JFrame {
         btnAnmeldung    = new NavButton("Anmeldung\nBachelorarbeit", false);
         btnArbeitsstand = new NavButton("Arbeitsstand & Uploads", false);
         btnAbgabe       = new NavButton("Endgültige Abgabe", false);
+        btnBachelorseminar = new NavButton("Bachelorseminar", false);
+        btnNote         = new NavButton("Note", false);
 
         btnDashboard.onClick(() -> showPage(PAGE_DASHBOARD));
         btnAllgemein.onClick(() -> showPage(PAGE_ALLGEMEIN));
         btnAnmeldung.onClick(() -> showPage(PAGE_ANMELDUNG));
         btnArbeitsstand.onClick(() -> showPage(PAGE_ARBEITSSTAND));
-
-        // ✅ FIX: Button öffnet jetzt wirklich die Abgabe-Seite
         btnAbgabe.onClick(() -> showPage(PAGE_ABGABE));
+        btnBachelorseminar.onClick(() -> showPage(PAGE_BACHELORSEMINAR));
+        btnNote.onClick(() -> showPage(PAGE_NOTE));
 
         menu.add(btnDashboard);     menu.add(Box.createVerticalStrut(6));
         menu.add(btnAllgemein);     menu.add(Box.createVerticalStrut(6));
         menu.add(btnAnmeldung);     menu.add(Box.createVerticalStrut(6));
         menu.add(btnArbeitsstand);  menu.add(Box.createVerticalStrut(6));
-        menu.add(btnAbgabe);
+        menu.add(btnAbgabe);        menu.add(Box.createVerticalStrut(6));
+        menu.add(btnBachelorseminar); menu.add(Box.createVerticalStrut(6));
+        menu.add(btnNote);
 
         menu.add(Box.createVerticalGlue());
         side.add(menu, BorderLayout.CENTER);
@@ -189,8 +199,6 @@ public class StudentFenster extends JFrame {
             new gui.authentication.LoginFenster().setVisible(true);
             dispose();
         });
-
-
 
         bottom.add(logout);
         side.add(bottom, BorderLayout.SOUTH);

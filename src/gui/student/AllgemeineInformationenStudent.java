@@ -150,7 +150,7 @@ public class AllgemeineInformationenStudent extends JPanel {
         body.add(fieldLabel("Titel / Thema"));
         body.add(Box.createVerticalStrut(8));
 
-        tfTitel = input("Entwicklung eines KI-gestützten Chatbots");
+        tfTitel = input("");
         body.add(tfTitel);
 
         return card;
@@ -178,8 +178,8 @@ public class AllgemeineInformationenStudent extends JPanel {
         // Fields row
         g.gridy = 1;
 
-        tfUnternehmen = input("TechCorp GmbH");
-        tfOrt = input("Stuttgart");
+        tfUnternehmen = input("");
+        tfOrt = input("");
 
         g.gridx = 0;
         grid.add(tfUnternehmen, g);
@@ -211,8 +211,8 @@ public class AllgemeineInformationenStudent extends JPanel {
 
         g.gridy = 1;
 
-        tfVon = input("01.10.2024");
-        tfBis = input("31.01.2025");
+        tfVon = input("");
+        tfBis = input("");
 
         g.gridx = 0;
         grid.add(tfVon, g);
@@ -233,14 +233,14 @@ public class AllgemeineInformationenStudent extends JPanel {
 
         body.add(fieldLabel("Betreuer an der HFT"));
         body.add(Box.createVerticalStrut(8));
-        tfBetreuerHft = input("Prof. Dr. Schmidt");
+        tfBetreuerHft = input("");
         body.add(tfBetreuerHft);
 
         body.add(Box.createVerticalStrut(14));
 
         body.add(fieldLabel("Betreuer im Unternehmen"));
         body.add(Box.createVerticalStrut(8));
-        tfBetreuerU = input("Dr. Meyer");
+        tfBetreuerU = input("");
         body.add(tfBetreuerU);
 
         return card;
@@ -275,8 +275,9 @@ public class AllgemeineInformationenStudent extends JPanel {
         bg.add(rbNdaJa);
         bg.add(rbNdaNein);
 
-        // Web-Screenshot: "Ja" aktiv
-        rbNdaJa.setSelected(true);
+        // Startzustand: Keine Auswahl
+        rbNdaJa.setSelected(false);
+        rbNdaNein.setSelected(false);
 
         JPanel radios = new JPanel();
         radios.setOpaque(false);
@@ -352,7 +353,7 @@ public class AllgemeineInformationenStudent extends JPanel {
         btnBack.setPreferredSize(new Dimension(180, 48));
         btnBack.addActionListener(e -> parent.showPage(StudentFenster.PAGE_DASHBOARD));
 
-        JButton btnSave = new JButton("Speichern");
+        JButton btnSave = new JButton("Antrag einreichen");
         btnSave.setFocusPainted(false);
         btnSave.setForeground(Color.WHITE);
         btnSave.setBackground(PRIMARY);
@@ -389,7 +390,7 @@ public class AllgemeineInformationenStudent extends JPanel {
     }
 
     private void onSave() {
-        JOptionPane.showMessageDialog(this, "Gespeichert (Demo).");
+        JOptionPane.showMessageDialog(this, "Antrag eingereicht (Demo).");
     }
 
     // ---------------- UI Helpers ----------------

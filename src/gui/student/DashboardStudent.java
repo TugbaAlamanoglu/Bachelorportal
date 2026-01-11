@@ -41,6 +41,7 @@ public class DashboardStudent extends JPanel {
         JLabel h1 = new JLabel("Dashboard");
         h1.setFont(new Font("SansSerif", Font.BOLD, 22));
         h1.setForeground(TEXT_DARK);
+        h1.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(h1);
 
         content.add(Box.createVerticalStrut(6));
@@ -48,6 +49,7 @@ public class DashboardStudent extends JPanel {
         JLabel h2 = new JLabel("Übersicht über Ihren Bachelorarbeits-Status");
         h2.setFont(new Font("SansSerif", Font.PLAIN, 14));
         h2.setForeground(TEXT_MUTED);
+        h2.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(h2);
 
         content.add(Box.createVerticalStrut(18));
@@ -58,14 +60,14 @@ public class DashboardStudent extends JPanel {
         cardsRow.add(makeStatusCard(
                 "Allgemeine Informationen",
                 "Grunddaten Ihrer Bachelorarbeit",
-                "Gespeichert",
+                "Noch nicht begonnen",
                 () -> parent.showPage(StudentFenster.PAGE_ALLGEMEIN)
         ));
 
         cardsRow.add(makeStatusCard(
                 "Anmeldung Bachelorarbeit",
                 "Offizieller Anmeldestatus",
-                "Genehmigt",
+                "Noch nicht möglich",
                 () -> parent.showPage(StudentFenster.PAGE_ANMELDUNG)
         ));
 
@@ -86,7 +88,8 @@ public class DashboardStudent extends JPanel {
         content.add(makeNotificationsCard());
 
         content.add(Box.createVerticalStrut(18));
-        content.add(makeImportantDatesCard());
+        // Die wichtige Termine Box wird erst nach der Anmeldung angezeigt
+        // content.add(makeImportantDatesCard());
 
         content.add(Box.createVerticalStrut(30));
 
@@ -174,7 +177,7 @@ public class DashboardStudent extends JPanel {
         t.setFont(new Font("SansSerif", Font.BOLD, 16));
         t.setForeground(TEXT_DARK);
 
-        JLabel badge = new JLabel("2 ungelesen");
+        JLabel badge = new JLabel("0 ungelesen");
         badge.setFont(new Font("SansSerif", Font.BOLD, 12));
         badge.setOpaque(true);
         badge.setForeground(TEXT_DARK);
@@ -190,21 +193,11 @@ public class DashboardStudent extends JPanel {
         list.setBorder(new EmptyBorder(6, 18, 18, 18));
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
 
-        list.add(makeNotificationItem("✅", "Anmeldung genehmigt",
-                "Ihre Bachelorarbeits-Anmeldung wurde vom Betreuer genehmigt.",
-                "7.1.2026, 12:12:12", true));
-
-        list.add(Box.createVerticalStrut(12));
-
-        list.add(makeNotificationItem("🔔", "Neues Feedback",
-                "Ihr Betreuer hat Feedback zu Ihrem Arbeitsstand hinterlassen.",
-                "6.1.2026, 14:12:12", true));
-
-        list.add(Box.createVerticalStrut(12));
-
-        list.add(makeNotificationItem("🕒", "Erinnerung",
-                "Die Abgabefrist für Ihre Bachelorarbeit ist in 4 Wochen.",
-                "4.1.2026, 14:12:12", false));
+        JLabel noNotifications = new JLabel("keine Benachrichtigungen vorhanden");
+        noNotifications.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        noNotifications.setForeground(TEXT_MUTED);
+        noNotifications.setAlignmentX(Component.CENTER_ALIGNMENT);
+        list.add(noNotifications);
 
         card.add(list, BorderLayout.CENTER);
         return card;
