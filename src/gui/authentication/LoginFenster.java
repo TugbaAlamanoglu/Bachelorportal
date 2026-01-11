@@ -2,6 +2,7 @@ package gui.authentication;
 
 import datenbank.UserDAO;
 import datenbank.UserLoginResult;
+import gui.betreuer.BetreuerFenster;
 import gui.betreuer.DashboardBetreuer;
 import gui.dekan.StudiendekanPortalFrame;
 import gui.student.StudentFenster;
@@ -179,7 +180,7 @@ public class LoginFenster extends JFrame {
 
             switch (rolle) {
                 case "student" -> new StudentFenster(result.getMnr(), name, mail).setVisible(true);
-                case "betreuer" -> new DashboardBetreuer(name, mail).setVisible(true);
+                case "betreuer" -> new BetreuerFenster(name, mail).setVisible(true);
                 case "dekan" -> new StudiendekanPortalFrame(name, mail).setVisible(true);
                 default -> showError("Unbekannte Rolle.");
             }
