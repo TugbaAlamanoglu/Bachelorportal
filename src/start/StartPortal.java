@@ -19,4 +19,3 @@ public class StartPortal {
         });
     }
 }
-//Test commit auf bachelorportal branc

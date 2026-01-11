@@ -1,5 +1,6 @@
 package gui.dekan;
 
+import gui.shared.DashboardCard;
 import util.UIColors;
 
 import javax.swing.*;
@@ -9,74 +10,107 @@ import java.awt.*;
 public class DashboardStudiendekan extends JPanel {
 
     public DashboardStudiendekan() {
-        setOpaque(true);
         setBackground(UIColors.BG_APP);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout());
+        add(buildScrollableContent(), BorderLayout.CENTER);
+    }
 
+    private JComponent buildScrollableContent() {
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+
+        // 🔥 EXAKT wie StudentDashboardView
+        content.setBorder(new EmptyBorder(48, 64, 64, 64));
+
+        // ===== Titel =====
         JLabel h1 = new JLabel("Studiendekan Dashboard");
         h1.setFont(new Font("SansSerif", Font.BOLD, 22));
         h1.setForeground(UIColors.TEXT_DARK);
+        h1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel sub = new JLabel("Übersicht über alle Bachelorarbeiten");
         sub.setFont(new Font("SansSerif", Font.PLAIN, 14));
         sub.setForeground(UIColors.TEXT_MUTED);
+        sub.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        add(h1);
-        add(Box.createVerticalStrut(4));
-        add(sub);
-        add(Box.createVerticalStrut(18));
+        content.add(h1);
+        content.add(Box.createVerticalStrut(6));
+        content.add(sub);
+        content.add(Box.createVerticalStrut(24));
 
-        // Stat cards row
-        JPanel stats = new JPanel(new GridLayout(1, 4, 16, 16));
-        stats.setOpaque(false);
+        // ===== Obere Cards (wie beim Studenten) =====
+        JPanel topRow = new JPanel(new GridLayout(1, 3, 18, 0));
+        topRow.setOpaque(false);
+        topRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        stats.add(new StatCard("Offene Genehmigungen", "Zur Entscheidung", "1"));
-        stats.add(new StatCard("Genehmigte Anträge", "Bewilligt", "1"));
-        stats.add(new StatCard("Finale Abgaben", "Eingereicht", "0"));
-        stats.add(new StatCard("Seminarnoten", "Ausstehend", "0"));
+        topRow.add(simpleCard("Offene Genehmigungen", "0"));
+        topRow.add(simpleCard("Aktive Arbeiten", "0"));
+        topRow.add(simpleCard("Bewertungen ausstehend", "0"));
 
-        add(stats);
-        add(Box.createVerticalStrut(18));
+        content.add(topRow);
+        content.add(Box.createVerticalStrut(18));
 
-        // Offene Genehmigungen section
-        ShadowCardPanel sec1 = new ShadowCardPanel(18);
-        sec1.setLayout(new BoxLayout(sec1, BoxLayout.Y_AXIS));
-        sec1.setBorder(new EmptyBorder(18, 18, 18, 18));
+        // ===== Untere Cards =====
+        JPanel bottomRow = new JPanel(new GridLayout(1, 2, 18, 0));
+        bottomRow.setOpaque(false);
+        bottomRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel s1t = new JLabel("Offene Genehmigungen");
-        s1t.setFont(new Font("SansSerif", Font.BOLD, 16));
-        s1t.setForeground(UIColors.TEXT_DARK);
-        sec1.add(s1t);
-        sec1.add(Box.createVerticalStrut(12));
-
-        sec1.add(new ApprovalItem(
-                "Mobile App-Entwicklung mit React Native für IoT-Gerätesteuerung",
-                "Tom Schmidt (Matrikelnr. 12345680)",
-                "Betreuer: Prof. Dr. Michael Weber",
-                "Wartet auf Genehmigung"
+        bottomRow.add(textCard(
+                "Aktuelle Phase",
+                "Keine aktive Phase"
         ));
 
-        add(sec1);
-        add(Box.createVerticalStrut(18));
+        bottomRow.add(textCard(
+                "Aktuelle Aktivitäten",
+                "Keine aktuellen Aktivitäten"
+        ));
 
-        // Alle Bachelorarbeiten section
-        ShadowCardPanel sec2 = new ShadowCardPanel(18);
-        sec2.setLayout(new BoxLayout(sec2, BoxLayout.Y_AXIS));
-        sec2.setBorder(new EmptyBorder(18, 18, 18, 18));
+        content.add(bottomRow);
 
-        JLabel s2t = new JLabel("Alle Bachelorarbeiten (3)");
-        s2t.setFont(new Font("SansSerif", Font.BOLD, 16));
-        s2t.setForeground(UIColors.TEXT_DARK);
-        sec2.add(s2t);
-        sec2.add(Box.createVerticalStrut(12));
+        JScrollPane sp = new JScrollPane(content);
+        sp.setBorder(null);
+        sp.getViewport().setBackground(UIColors.BG_APP);
+        sp.getVerticalScrollBar().setUnitIncrement(16);
 
-        sec2.add(new WorkRow("Max Mustermann", "Entwicklung einer KI-gestützten Webapplikation für automatisierte Datenanalyse", "Genehmigt", new Color(220, 245, 230)));
-        sec2.add(Box.createVerticalStrut(10));
-        sec2.add(new WorkRow("Lisa Müller", "Cloud-basierte Microservices-Architektur für E-Commerce-Plattformen", "Bei Betreuer", new Color(230, 238, 255)));
-        sec2.add(Box.createVerticalStrut(10));
-        sec2.add(new WorkRow("Tom Schmidt", "Mobile App-Entwicklung mit React Native für IoT-Gerätesteuerung", "Bei Studiendekan", new Color(255, 245, 220)));
+        return sp;
+    }
 
-        add(sec2);
+    // ===== Kleine Status-Card =====
+    private JComponent simpleCard(String title, String value) {
+        DashboardCard card = new DashboardCard();
+
+        JLabel t = new JLabel(title);
+        t.setFont(new Font("SansSerif", Font.BOLD, 16));
+        t.setForeground(UIColors.TEXT_DARK);
+
+        JLabel v = new JLabel(value);
+        v.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        v.setForeground(UIColors.TEXT_MUTED);
+
+        card.add(t);
+        card.add(Box.createVerticalStrut(6));
+        card.add(v);
+
+        return card;
+    }
+
+    // ===== Große Text-Card =====
+    private JComponent textCard(String title, String text) {
+        DashboardCard card = new DashboardCard();
+
+        JLabel t = new JLabel(title);
+        t.setFont(new Font("SansSerif", Font.BOLD, 16));
+        t.setForeground(UIColors.TEXT_DARK);
+
+        JLabel body = new JLabel(text);
+        body.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        body.setForeground(UIColors.TEXT_MUTED);
+
+        card.add(t);
+        card.add(Box.createVerticalStrut(12));
+        card.add(body);
+
+        return card;
     }
 }
-

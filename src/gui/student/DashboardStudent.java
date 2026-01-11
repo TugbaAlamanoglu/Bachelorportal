@@ -35,7 +35,7 @@ public class DashboardStudent extends JPanel {
     private JComponent buildScrollableContent() {
         JPanel content = new JPanel();
         content.setBackground(BG);
-        content.setBorder(new EmptyBorder(28, 28, 28, 28));
+        content.setBorder(new EmptyBorder(48, 32, 64, 64));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
         JLabel h1 = new JLabel("Dashboard");
