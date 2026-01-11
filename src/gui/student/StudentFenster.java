@@ -64,7 +64,7 @@ public class StudentFenster extends JFrame {
 
         // Pages
         content.setBackground(BG);
-        content.add(new DashboardStudent(this, mnr, name, email), PAGE_DASHBOARD);
+        content.add(new StudentDashboardView(this, mnr, name, email), PAGE_DASHBOARD);
         content.add(new AllgemeineInformationenStudent(this, mnr, name, email), PAGE_ALLGEMEIN);
         content.add(new AnmeldungBachelorarbeitStudent(this, mnr, name, email), PAGE_ANMELDUNG);
         content.add(new ArbeitsstandStudent(this, mnr, name, email), PAGE_ARBEITSSTAND);
