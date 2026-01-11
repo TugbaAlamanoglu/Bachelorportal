@@ -87,10 +87,6 @@ public class DashboardStudent extends JPanel {
         content.add(Box.createVerticalStrut(18));
         content.add(makeNotificationsCard());
 
-        content.add(Box.createVerticalStrut(18));
-        // Die wichtige Termine Box wird erst nach der Anmeldung angezeigt
-        // content.add(makeImportantDatesCard());
-
         content.add(Box.createVerticalStrut(30));
 
         JScrollPane sp = new JScrollPane(content);
@@ -176,6 +172,7 @@ public class DashboardStudent extends JPanel {
         JLabel t = new JLabel("Letzte Benachrichtigungen");
         t.setFont(new Font("SansSerif", Font.BOLD, 16));
         t.setForeground(TEXT_DARK);
+        t.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel badge = new JLabel("0 ungelesen");
         badge.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -184,8 +181,12 @@ public class DashboardStudent extends JPanel {
         badge.setBackground(new Color(245, 245, 245));
         badge.setBorder(new EmptyBorder(6, 10, 6, 10));
 
+        JPanel badgeWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        badgeWrapper.setOpaque(false);
+        badgeWrapper.add(badge);
+
         header.add(t, BorderLayout.WEST);
-        header.add(badge, BorderLayout.EAST);
+        header.add(badgeWrapper, BorderLayout.EAST);
         card.add(header, BorderLayout.NORTH);
 
         JPanel list = new JPanel();
@@ -196,80 +197,11 @@ public class DashboardStudent extends JPanel {
         JLabel noNotifications = new JLabel("keine Benachrichtigungen vorhanden");
         noNotifications.setFont(new Font("SansSerif", Font.PLAIN, 14));
         noNotifications.setForeground(TEXT_MUTED);
-        noNotifications.setAlignmentX(Component.CENTER_ALIGNMENT);
+        noNotifications.setAlignmentX(Component.LEFT_ALIGNMENT);
         list.add(noNotifications);
 
         card.add(list, BorderLayout.CENTER);
         return card;
-    }
-
-    private JComponent makeNotificationItem(String iconText, String title, String desc, String time, boolean unread) {
-        JPanel item = new JPanel(new BorderLayout());
-        item.setBackground(NOTIF_BG);
-        item.setBorder(new RoundedBorder(12, new Color(207, 228, 247)));
-
-        JPanel inner = new JPanel(new BorderLayout(12, 0));
-        inner.setOpaque(false);
-        inner.setBorder(new EmptyBorder(14, 14, 14, 14));
-
-        JLabel icon = new JLabel(iconText);
-        icon.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        inner.add(icon, BorderLayout.WEST);
-
-        JLabel t = new JLabel(title);
-        t.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-        JLabel d = new JLabel("<html><span style='color:#666666;'>" + desc + "</span></html>");
-        JLabel tm = new JLabel(time);
-        tm.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        tm.setForeground(TEXT_MUTED);
-
-        JPanel text = new JPanel();
-        text.setOpaque(false);
-        text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
-        text.add(t);
-        text.add(Box.createVerticalStrut(4));
-        text.add(d);
-        text.add(Box.createVerticalStrut(8));
-        text.add(tm);
-
-        inner.add(text, BorderLayout.CENTER);
-        item.add(inner, BorderLayout.CENTER);
-        return item;
-    }
-
-    private JComponent makeImportantDatesCard() {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBackground(WARN_BG);
-        card.setBorder(new RoundedBorder(14, new Color(247, 210, 170)));
-
-        JPanel inner = new JPanel();
-        inner.setOpaque(false);
-        inner.setBorder(new EmptyBorder(18, 18, 18, 18));
-        inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
-
-        inner.add(makeKeyValueRow("Anmeldung erfolgt am:", "15.10.2024", TEXT_DARK));
-        inner.add(Box.createVerticalStrut(10));
-        inner.add(makeKeyValueRow("Bearbeitungsfrist endet am:", "15.01.2025", TEXT_DARK));
-        inner.add(Box.createVerticalStrut(10));
-        inner.add(makeKeyValueRow("Verbleibende Tage:", "24 Tage", ACCENT_RED));
-
-        card.add(inner, BorderLayout.CENTER);
-        return card;
-    }
-
-    private JComponent makeKeyValueRow(String key, String value, Color valueColor) {
-        JPanel row = new JPanel(new BorderLayout());
-        row.setOpaque(false);
-
-        JLabel k = new JLabel(key);
-        JLabel v = new JLabel(value);
-        v.setForeground(valueColor);
-        v.setFont(new Font("SansSerif", Font.BOLD, 13));
-
-        row.add(k, BorderLayout.WEST);
-        row.add(v, BorderLayout.EAST);
-        return row;
     }
 
     static class RoundedBorder extends javax.swing.border.LineBorder {

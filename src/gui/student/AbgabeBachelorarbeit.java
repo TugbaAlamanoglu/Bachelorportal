@@ -3,7 +3,6 @@ package gui.student;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.File;
 
 public class AbgabeBachelorarbeit extends JPanel {
 
@@ -15,8 +14,6 @@ public class AbgabeBachelorarbeit extends JPanel {
 
     // --- Persistenz (Demo: bleibt im laufenden Programm erhalten) ---
     private static boolean submitted = false;
-    private static File submittedFile = null;
-    private static String submittedAbstract = "";
 
     private final StudentFenster parent;
 
@@ -35,8 +32,8 @@ public class AbgabeBachelorarbeit extends JPanel {
         content.setBorder(new EmptyBorder(28, 28, 28, 28));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        // Header
-        JLabel h1 = new JLabel("Endgültige Abgabe der Bachelorarbeit");
+        // Header LINKSBÜNDIG
+        JLabel h1 = new JLabel("Endgültige Abgabe");
         h1.setFont(new Font("SansSerif", Font.BOLD, 26));
         h1.setForeground(TEXT_DARK);
         h1.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -52,32 +49,38 @@ public class AbgabeBachelorarbeit extends JPanel {
 
         content.add(Box.createVerticalStrut(40));
 
+        // Zentrierter Inhalt
+        JPanel centeredContent = new JPanel();
+        centeredContent.setLayout(new BoxLayout(centeredContent, BoxLayout.Y_AXIS));
+        centeredContent.setOpaque(false);
+        centeredContent.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         // Lock Icon
         JLabel lockIcon = new JLabel("🔒");
         lockIcon.setFont(new Font("SansSerif", Font.PLAIN, 80));
         lockIcon.setForeground(TEXT_MUTED);
         lockIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(lockIcon);
+        centeredContent.add(lockIcon);
 
-        content.add(Box.createVerticalStrut(20));
+        centeredContent.add(Box.createVerticalStrut(20));
 
         // Main Message
         JLabel mainMessage = new JLabel("Abgabe noch nicht möglich");
         mainMessage.setFont(new Font("SansSerif", Font.BOLD, 20));
         mainMessage.setForeground(TEXT_DARK);
         mainMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(mainMessage);
+        centeredContent.add(mainMessage);
 
-        content.add(Box.createVerticalStrut(10));
+        centeredContent.add(Box.createVerticalStrut(10));
 
         // Sub Message
         JLabel subMessage = new JLabel("Die endgültige Abgabe ist erst nach der Anmeldung Ihrer Bachelorarbeit möglich.");
         subMessage.setFont(new Font("SansSerif", Font.PLAIN, 14));
         subMessage.setForeground(TEXT_MUTED);
         subMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(subMessage);
+        centeredContent.add(subMessage);
 
-        content.add(Box.createVerticalStrut(40));
+        centeredContent.add(Box.createVerticalStrut(40));
 
         // Button to go back
         JButton backButton = new JButton("←  Zurück zum Dashboard");
@@ -87,8 +90,14 @@ public class AbgabeBachelorarbeit extends JPanel {
         backButton.setMaximumSize(new Dimension(200, 44));
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> parent.showPage(StudentFenster.PAGE_DASHBOARD));
-        content.add(backButton);
+        centeredContent.add(backButton);
 
+        // Zentrierten Content in das Hauptpanel einfügen
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setOpaque(false);
+        wrapper.add(centeredContent);
+        
+        content.add(wrapper);
         content.add(Box.createVerticalGlue());
 
         JScrollPane sp = new JScrollPane(content);

@@ -29,7 +29,7 @@ public class BachelorseminarPage extends JPanel {
         content.setBorder(new EmptyBorder(28, 28, 28, 28));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        // Header
+        // Header LINKSBÜNDIG
         JLabel h1 = new JLabel("Bachelorseminar");
         h1.setFont(new Font("SansSerif", Font.BOLD, 26));
         h1.setForeground(TEXT_DARK);
@@ -46,32 +46,38 @@ public class BachelorseminarPage extends JPanel {
 
         content.add(Box.createVerticalStrut(40));
 
+        // Zentrierter Inhalt
+        JPanel centeredContent = new JPanel();
+        centeredContent.setLayout(new BoxLayout(centeredContent, BoxLayout.Y_AXIS));
+        centeredContent.setOpaque(false);
+        centeredContent.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         // Calendar Icon
         JLabel calendarIcon = new JLabel("📅");
         calendarIcon.setFont(new Font("SansSerif", Font.PLAIN, 80));
         calendarIcon.setForeground(TEXT_MUTED);
         calendarIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(calendarIcon);
+        centeredContent.add(calendarIcon);
 
-        content.add(Box.createVerticalStrut(20));
+        centeredContent.add(Box.createVerticalStrut(20));
 
         // Main Message
         JLabel mainMessage = new JLabel("Termine werden veröffentlicht");
         mainMessage.setFont(new Font("SansSerif", Font.BOLD, 20));
         mainMessage.setForeground(TEXT_DARK);
         mainMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(mainMessage);
+        centeredContent.add(mainMessage);
 
-        content.add(Box.createVerticalStrut(10));
+        centeredContent.add(Box.createVerticalStrut(10));
 
-        // Sub Message
-        JLabel subMessage = new JLabel("<html><center>Die Termine für das Bachelorseminar werden rechtzeitig hier veröffentlicht.<br>Sie erhalten eine Benachrichtigung, sobald neue Informationen verfügbar sind.<br><br>Das Bachelorseminar findet in der Regel 2-3 Wochen nach der Abgabe statt.</center></html>");
+        // Sub Message - jetzt mit korrekter Zentrierung
+        JLabel subMessage = new JLabel("<html><div style='text-align: center; width: 500px;'>Die Termine für das Bachelorseminar werden rechtzeitig hier veröffentlicht. Sie erhalten eine Benachrichtigung, sobald neue Informationen verfügbar sind.<br><br>Das Bachelorseminar findet in der Regel 2-3 Wochen nach der Abgabe statt.</div></html>");
         subMessage.setFont(new Font("SansSerif", Font.PLAIN, 14));
         subMessage.setForeground(TEXT_MUTED);
         subMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(subMessage);
+        centeredContent.add(subMessage);
 
-        content.add(Box.createVerticalStrut(40));
+        centeredContent.add(Box.createVerticalStrut(40));
 
         // Button to go back
         JButton backButton = new JButton("←  Zurück zum Dashboard");
@@ -81,8 +87,14 @@ public class BachelorseminarPage extends JPanel {
         backButton.setMaximumSize(new Dimension(200, 44));
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> parent.showPage(StudentFenster.PAGE_DASHBOARD));
-        content.add(backButton);
+        centeredContent.add(backButton);
 
+        // Zentrierten Content in das Hauptpanel einfügen
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setOpaque(false);
+        wrapper.add(centeredContent);
+        
+        content.add(wrapper);
         content.add(Box.createVerticalGlue());
 
         JScrollPane sp = new JScrollPane(content);
