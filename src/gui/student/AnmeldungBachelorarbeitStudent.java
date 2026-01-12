@@ -7,8 +7,6 @@ import java.awt.*;
 public class AnmeldungBachelorarbeitStudent extends JPanel {
 
     private static final Color BG = StudentFenster.BG;
-    private static final Color BORDER = StudentFenster.BORDER;
-    private static final Color PRIMARY = StudentFenster.PRIMARY;
     private static final Color TEXT_DARK = StudentFenster.TEXT_DARK;
     private static final Color TEXT_MUTED = StudentFenster.TEXT_MUTED;
 
@@ -20,18 +18,20 @@ public class AnmeldungBachelorarbeitStudent extends JPanel {
         setLayout(new BorderLayout());
         setBackground(BG);
 
-        add(buildLockedContent(), BorderLayout.CENTER);
+        add(buildContent(), BorderLayout.CENTER); 
     }
 
-    private JComponent buildLockedContent() {
+    private JComponent buildContent() {
         JPanel content = new JPanel();
-        content.setBackground(BG);
-        content.setBorder(new EmptyBorder(28, 28, 28, 28));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(BG);
 
-        // Header LINKSBÜNDIG
+        // 🔹 GLEICHES PRINZIP WIE BEIM BETREUER
+        content.setBorder(new EmptyBorder(48, 32, 64, 64));
+
+        // ===== ÜBERSCHRIFT LINKS (WIE BETREUER) =====
         JLabel h1 = new JLabel("Anmeldung Bachelorarbeit");
-        h1.setFont(new Font("SansSerif", Font.BOLD, 26));
+        h1.setFont(new Font("SansSerif", Font.BOLD, 22));
         h1.setForeground(TEXT_DARK);
         h1.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(h1);
@@ -44,42 +44,48 @@ public class AnmeldungBachelorarbeitStudent extends JPanel {
         h2.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(h2);
 
-        content.add(Box.createVerticalStrut(40));
+        content.add(Box.createVerticalStrut(18));
 
-        // Zentrierter Inhalt
-        JPanel centeredContent = new JPanel();
-        centeredContent.setLayout(new BoxLayout(centeredContent, BoxLayout.Y_AXIS));
-        centeredContent.setOpaque(false);
-        centeredContent.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // ===== ZENTRIERTER INHALT (WIE BEIM BETREUER-EMPTY-STATE) =====
+        JPanel centeredPanel = new JPanel(new GridBagLayout());
+        centeredPanel.setOpaque(false);
+        centeredPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        centeredPanel.setMinimumSize(new Dimension(0, 400));
 
-        // Lock Icon
+        JPanel emptyContent = new JPanel();
+        emptyContent.setLayout(new BoxLayout(emptyContent, BoxLayout.Y_AXIS));
+        emptyContent.setOpaque(false);
+        emptyContent.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         JLabel lockIcon = new JLabel("🔒");
         lockIcon.setFont(new Font("SansSerif", Font.PLAIN, 80));
         lockIcon.setForeground(TEXT_MUTED);
         lockIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
-        centeredContent.add(lockIcon);
+        emptyContent.add(lockIcon);
 
-        centeredContent.add(Box.createVerticalStrut(20));
+        
+        emptyContent.add(Box.createVerticalStrut(20));
 
-        // Main Message
         JLabel mainMessage = new JLabel("Anmeldung noch nicht möglich");
         mainMessage.setFont(new Font("SansSerif", Font.BOLD, 20));
         mainMessage.setForeground(TEXT_DARK);
         mainMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        centeredContent.add(mainMessage);
+        emptyContent.add(mainMessage);
 
-        centeredContent.add(Box.createVerticalStrut(10));
+        emptyContent.add(Box.createVerticalStrut(10));
 
-        // Sub Message
-        JLabel subMessage = new JLabel("Die Anmeldung zur Bachelorarbeit ist erst nach Genehmigung Ihres Antrags möglich.");
+        JLabel subMessage = new JLabel(
+            "<html><div style='text-align: center;'>"
+            + "Die Anmeldung zur Bachelorarbeit ist erst nach Genehmigung Ihres Antrags möglich."
+            + "</div></html>"
+        );
         subMessage.setFont(new Font("SansSerif", Font.PLAIN, 14));
         subMessage.setForeground(TEXT_MUTED);
         subMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        centeredContent.add(subMessage);
+        emptyContent.add(subMessage);
 
-        centeredContent.add(Box.createVerticalStrut(40));
+        emptyContent.add(Box.createVerticalStrut(40));
 
-        // Button to go back
         JButton backButton = new JButton("←  Zurück zum Dashboard");
         backButton.setFocusPainted(false);
         backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -87,20 +93,18 @@ public class AnmeldungBachelorarbeitStudent extends JPanel {
         backButton.setMaximumSize(new Dimension(200, 44));
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> parent.showPage(StudentFenster.PAGE_DASHBOARD));
-        centeredContent.add(backButton);
+        emptyContent.add(backButton);
 
-        // Zentrierten Content in das Hauptpanel einfügen
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setOpaque(false);
-        wrapper.add(centeredContent);
-        
-        content.add(wrapper);
+        centeredPanel.add(emptyContent);
+        content.add(centeredPanel);
+
         content.add(Box.createVerticalGlue());
 
         JScrollPane sp = new JScrollPane(content);
         sp.setBorder(null);
         sp.getVerticalScrollBar().setUnitIncrement(16);
         sp.getViewport().setBackground(BG);
+
         return sp;
     }
 }
