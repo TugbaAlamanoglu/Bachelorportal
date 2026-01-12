@@ -3,34 +3,37 @@ package datenbank;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class BetreuerDAO {
 
-    public static List<UserLoginResult> findAllBetreuer() throws Exception {
+    /**
+     * Liefert alle Betreuer aus der user-Tabelle
+     * key   = user.id
+     * value = "Vorname Nachname"
+     */
+    public static Map<Integer, String> findAllBetreuer() throws Exception {
 
         String sql = """
-            SELECT id, vorname, nachname, email
+            SELECT id, vorname, nachname
             FROM user
             WHERE rolle = 'betreuer'
-            ORDER BY nachname
+            ORDER BY nachname, vorname
         """;
 
-        List<UserLoginResult> result = new ArrayList<>();
+        Map<Integer, String> result = new LinkedHashMap<>();
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                result.add(new UserLoginResult(
-                        rs.getInt("id"),
-                        "betreuer",
-                        rs.getString("vorname"),
-                        rs.getString("nachname"),
-                        rs.getString("email")
-                ));
+                int id = rs.getInt("id");
+                String name =
+                        rs.getString("vorname") + " " + rs.getString("nachname");
+
+                result.put(id, name);
             }
         }
 
