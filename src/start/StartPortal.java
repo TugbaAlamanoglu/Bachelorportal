@@ -16,6 +16,7 @@ public class StartPortal {
             } catch (Exception ignored) {}
 
             new LoginFenster().setVisible(true);
-        });
+        }); 
     }
 }
+    
