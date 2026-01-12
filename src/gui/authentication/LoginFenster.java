@@ -4,7 +4,7 @@ import datenbank.UserDAO;
 import datenbank.UserLoginResult;
 import gui.betreuer.BetreuerFenster;
 import gui.betreuer.DashboardBetreuer;
-import gui.dekan.StudiendekanPortalFrame;
+import gui.dekan.StudiendekanFenster;
 import gui.student.StudentFenster;
 import gui.shared.RoundPanel;
 import gui.shared.RoundPasswordField;
@@ -181,7 +181,7 @@ public class LoginFenster extends JFrame {
             switch (rolle) {
                 case "student" -> new StudentFenster(result.getMnr(), name, mail).setVisible(true);
                 case "betreuer" -> new BetreuerFenster(result.getMnr(), name, mail).setVisible(true);
-                case "dekan" -> new StudiendekanPortalFrame(name, mail).setVisible(true);
+                case "dekan" -> new StudiendekanFenster(name, mail).setVisible(true);
                 default -> showError("Unbekannte Rolle.");
             }
 

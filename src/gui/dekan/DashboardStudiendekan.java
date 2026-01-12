@@ -1,116 +1,217 @@
 package gui.dekan;
 
-import gui.shared.DashboardCard;
-import util.UIColors;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class DashboardStudiendekan extends JPanel {
 
-    public DashboardStudiendekan() {
-        setBackground(UIColors.BG_APP);
+    private static final Color BG = StudiendekanFenster.BG;
+    private static final Color BORDER = StudiendekanFenster.BORDER;
+    private static final Color PRIMARY = StudiendekanFenster.PRIMARY;
+    private static final Color TEXT_DARK = StudiendekanFenster.TEXT_DARK;
+    private static final Color TEXT_MUTED = StudiendekanFenster.TEXT_MUTED;
+
+    private final StudiendekanFenster parent;
+
+    public DashboardStudiendekan(StudiendekanFenster parent, String name, String email) {
+        this.parent = parent;
+
         setLayout(new BorderLayout());
+        setBackground(BG);
+
         add(buildScrollableContent(), BorderLayout.CENTER);
     }
 
     private JComponent buildScrollableContent() {
         JPanel content = new JPanel();
-        content.setOpaque(false);
+        content.setBackground(BG);
+        content.setBorder(new EmptyBorder(28, 28, 28, 28));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        // 🔥 EXAKT wie StudentDashboardView
-        content.setBorder(new EmptyBorder(48, 64, 64, 64));
-
-        // ===== Titel =====
-        JLabel h1 = new JLabel("Studiendekan Dashboard");
-        h1.setFont(new Font("SansSerif", Font.BOLD, 22));
-        h1.setForeground(UIColors.TEXT_DARK);
+        // Header linksbündig
+        JLabel h1 = new JLabel("Dashboard");
+        h1.setFont(new Font("SansSerif", Font.BOLD, 26));
+        h1.setForeground(TEXT_DARK);
         h1.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel sub = new JLabel("Übersicht über alle Bachelorarbeiten");
-        sub.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        sub.setForeground(UIColors.TEXT_MUTED);
-        sub.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         content.add(h1);
+
         content.add(Box.createVerticalStrut(6));
-        content.add(sub);
-        content.add(Box.createVerticalStrut(24));
 
-        // ===== Obere Cards (wie beim Studenten) =====
-        JPanel topRow = new JPanel(new GridLayout(1, 3, 18, 0));
-        topRow.setOpaque(false);
-        topRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel h2 = new JLabel("Übersicht über alle Bachelorarbeiten");
+        h2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        h2.setForeground(TEXT_MUTED);
+        h2.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(h2);
 
-        topRow.add(simpleCard("Offene Genehmigungen", "0"));
-        topRow.add(simpleCard("Aktive Arbeiten", "0"));
-        topRow.add(simpleCard("Bewertungen ausstehend", "0"));
-
-        content.add(topRow);
         content.add(Box.createVerticalStrut(18));
 
-        // ===== Untere Cards =====
-        JPanel bottomRow = new JPanel(new GridLayout(1, 2, 18, 0));
-        bottomRow.setOpaque(false);
-        bottomRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // Kartenreihe
+        JPanel cardsRow = new JPanel(new GridLayout(1, 3, 18, 0));
+        cardsRow.setOpaque(false);
 
-        bottomRow.add(textCard(
+        cardsRow.add(makeStatusCard(
+                "Offene Genehmigungen",
+                "Warten auf Ihre Entscheidung",
+                "0",
+                () -> parent.showPage(StudiendekanFenster.PAGE_GENEHMIGUNGEN)
+        ));
+
+        cardsRow.add(makeStatusCard(
+                "Aktive Arbeiten",
+                "Laufende Bachelorarbeiten",
+                "0",
+                () -> parent.showPage(StudiendekanFenster.PAGE_UEBERSICHT)
+        ));
+
+        cardsRow.add(makeStatusCard(
+                "Bewertungen ausstehend",
+                "Notenvergabe erforderlich",
+                "0",
+                () -> parent.showPage(StudiendekanFenster.PAGE_NOTENVERGABE)
+        ));
+
+        cardsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 170));
+        content.add(cardsRow);
+
+        content.add(Box.createVerticalStrut(18));
+
+        // Zweite Reihe mit Textkarten
+        JPanel secondRow = new JPanel(new GridLayout(1, 2, 18, 0));
+        secondRow.setOpaque(false);
+        secondRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+
+        secondRow.add(makeTextCard(
                 "Aktuelle Phase",
-                "Keine aktive Phase"
+                "Keine aktive Phase",
+                "📊"
         ));
 
-        bottomRow.add(textCard(
+        secondRow.add(makeTextCard(
                 "Aktuelle Aktivitäten",
-                "Keine aktuellen Aktivitäten"
+                "Keine aktuellen Aktivitäten",
+                "📝"
         ));
 
-        content.add(bottomRow);
+        content.add(secondRow);
+
+        content.add(Box.createVerticalStrut(30));
 
         JScrollPane sp = new JScrollPane(content);
         sp.setBorder(null);
-        sp.getViewport().setBackground(UIColors.BG_APP);
         sp.getVerticalScrollBar().setUnitIncrement(16);
-
+        sp.getViewport().setBackground(BG);
         return sp;
     }
 
-    // ===== Kleine Status-Card =====
-    private JComponent simpleCard(String title, String value) {
-        DashboardCard card = new DashboardCard();
+    private JComponent makeStatusCard(String title, String subtitle, String statusText, Runnable onClick) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(new RoundedBorder(14, BORDER));
+        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        JPanel inner = new JPanel(new BorderLayout());
+        inner.setOpaque(false);
+        inner.setBorder(new EmptyBorder(18, 18, 18, 18));
+
+        JLabel icon = new JLabel("📄");
+        icon.setFont(new Font("SansSerif", Font.PLAIN, 22));
+        icon.setForeground(TEXT_MUTED);
+        inner.add(icon, BorderLayout.WEST);
+
+        JLabel pill = new JLabel(statusText);
+        pill.setFont(new Font("SansSerif", Font.BOLD, 12));
+        pill.setOpaque(true);
+        pill.setBorder(new EmptyBorder(6, 12, 6, 12));
+
+        boolean ok = !"0".equals(statusText);
+
+        pill.setBackground(ok ? new Color(231, 244, 255) : new Color(245, 245, 245));
+        pill.setForeground(ok ? PRIMARY : TEXT_DARK);
+
+        JPanel pillWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        pillWrap.setOpaque(false);
+        pillWrap.add(pill);
+        inner.add(pillWrap, BorderLayout.EAST);
+
+        JPanel text = new JPanel();
+        text.setOpaque(false);
+        text.setBorder(new EmptyBorder(12, 0, 0, 0));
+        text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 
         JLabel t = new JLabel(title);
         t.setFont(new Font("SansSerif", Font.BOLD, 16));
-        t.setForeground(UIColors.TEXT_DARK);
+        t.setForeground(TEXT_DARK);
 
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        v.setForeground(UIColors.TEXT_MUTED);
+        JLabel s = new JLabel(subtitle);
+        s.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        s.setForeground(TEXT_MUTED);
 
-        card.add(t);
-        card.add(Box.createVerticalStrut(6));
-        card.add(v);
+        text.add(t);
+        text.add(Box.createVerticalStrut(6));
+        text.add(s);
+
+        inner.add(text, BorderLayout.SOUTH);
+        card.add(inner, BorderLayout.CENTER);
+
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (onClick != null) onClick.run();
+            }
+        });
 
         return card;
     }
 
-    // ===== Große Text-Card =====
-    private JComponent textCard(String title, String text) {
-        DashboardCard card = new DashboardCard();
+    private JComponent makeTextCard(String title, String text, String iconText) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(new RoundedBorder(14, BORDER));
+
+        JPanel inner = new JPanel();
+        inner.setOpaque(false);
+        inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
+        inner.setBorder(new EmptyBorder(18, 18, 18, 18));
+
+        JLabel icon = new JLabel(iconText);
+        icon.setFont(new Font("SansSerif", Font.PLAIN, 22));
+        icon.setForeground(TEXT_MUTED);
+        icon.setAlignmentX(Component.LEFT_ALIGNMENT);
+        inner.add(icon);
+
+        inner.add(Box.createVerticalStrut(12));
 
         JLabel t = new JLabel(title);
         t.setFont(new Font("SansSerif", Font.BOLD, 16));
-        t.setForeground(UIColors.TEXT_DARK);
+        t.setForeground(TEXT_DARK);
+        t.setAlignmentX(Component.LEFT_ALIGNMENT);
+        inner.add(t);
 
-        JLabel body = new JLabel(text);
-        body.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        body.setForeground(UIColors.TEXT_MUTED);
+        inner.add(Box.createVerticalStrut(6));
 
-        card.add(t);
-        card.add(Box.createVerticalStrut(12));
-        card.add(body);
+        JLabel txt = new JLabel(text);
+        txt.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        txt.setForeground(TEXT_MUTED);
+        txt.setAlignmentX(Component.LEFT_ALIGNMENT);
+        inner.add(txt);
 
+        card.add(inner, BorderLayout.CENTER);
         return card;
+    }
+
+    static class RoundedBorder extends javax.swing.border.LineBorder {
+        private final int radius;
+        RoundedBorder(int radius, Color color) {
+            super(color, 1, true);
+            this.radius = radius;
+        }
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(lineColor);
+            g2.drawRoundRect(x, y, w - 1, h - 1, radius, radius);
+            g2.dispose();
+        }
     }
 }
