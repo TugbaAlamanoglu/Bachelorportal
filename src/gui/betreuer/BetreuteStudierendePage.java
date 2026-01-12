@@ -11,7 +11,7 @@ public class BetreuteStudierendePage extends JPanel {
     private static final Color PRIMARY = BetreuerFenster.PRIMARY;
     private static final Color TEXT_DARK = BetreuerFenster.TEXT_DARK;
     private static final Color TEXT_MUTED = BetreuerFenster.TEXT_MUTED;
-
+ 
     private final BetreuerFenster parent;
 
     public BetreuteStudierendePage(BetreuerFenster parent, String name, String email) {

@@ -18,7 +18,7 @@ public class DashboardBetreuer extends JPanel {
 
     public DashboardBetreuer(BetreuerFenster parent, String name, String email) {
         this.parent = parent;
-
+ 
         setLayout(new BorderLayout());
         setBackground(BG);
 

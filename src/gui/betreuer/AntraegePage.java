@@ -18,7 +18,7 @@ public class AntraegePage extends JPanel {
         setLayout(new BorderLayout());
         setBackground(BetreuerFenster.BG);
 
-        add(buildContent(), BorderLayout.CENTER);
+        add(buildContent(), BorderLayout.CENTER); 
     }
 
     private JComponent buildContent() {
