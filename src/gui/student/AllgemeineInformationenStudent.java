@@ -1,5 +1,6 @@
 package gui.student;
 
+import datenbank.BachelorarbeitDAO;
 import datenbank.BetreuerDAO;
 
 import javax.swing.*;
@@ -21,6 +22,8 @@ public class AllgemeineInformationenStudent extends JPanel {
     private static final int CONTENT_MAX_W = 1080;
 
     private final StudentFenster parent;
+    private final int mnr;
+    private final String name;
 
     private JTextField tfTitel;
     private JTextField tfUnternehmen;
@@ -35,9 +38,14 @@ public class AllgemeineInformationenStudent extends JPanel {
     private JRadioButton rbNdaJa;
     private JRadioButton rbNdaNein;
     private JLabel lblNdaFile;
+    
+    private boolean antragEingereicht = false;
+    private File ndaFile = null;
 
     public AllgemeineInformationenStudent(StudentFenster parent, int mnr, String name, String email) {
         this.parent = parent;
+        this.mnr = mnr;
+        this.name = name;
 
         setLayout(new BorderLayout());
         setBackground(BG);
@@ -46,7 +54,53 @@ public class AllgemeineInformationenStudent extends JPanel {
         add(buildBottomBar(), BorderLayout.SOUTH);
     }
 
-    // ================= CENTER =================
+    private void loadExistingAntrag() {
+        try {
+            datenbank.Bachelorarbeit ba = BachelorarbeitDAO.findForStudent(mnr);
+            if (ba != null) {
+                tfTitel.setText(ba.getThema());
+                tfUnternehmen.setText(ba.getUnternehmen());
+                tfOrt.setText(ba.getOrt());
+                tfVon.setText(ba.getZeitraumVon());
+                tfBis.setText(ba.getZeitraumBis());
+                tfBetreuerU.setText(ba.getBetreuerUnternehmen());
+                
+                if (cbBetreuer != null) {
+                    for (int i = 0; i < betreuerIds.size(); i++) {
+                        if (betreuerIds.get(i) == ba.getBetreuerId()) {
+                            cbBetreuer.setSelectedIndex(i + 1);
+                            break;
+                        }
+                    }
+                }
+                
+                if (rbNdaJa != null && rbNdaNein != null) {
+                    if (ba.isNda()) {
+                        rbNdaJa.setSelected(true);
+                    } else {
+                        rbNdaNein.setSelected(true);
+                    }
+                }
+                
+                antragEingereicht = true;
+                if (tfTitel != null) setFieldsEditable(false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setFieldsEditable(boolean editable) {
+        tfTitel.setEditable(editable);
+        tfUnternehmen.setEditable(editable);
+        tfOrt.setEditable(editable);
+        tfVon.setEditable(editable);
+        tfBis.setEditable(editable);
+        tfBetreuerU.setEditable(editable);
+        cbBetreuer.setEnabled(editable);
+        rbNdaJa.setEnabled(editable);
+        rbNdaNein.setEnabled(editable);
+    }
 
     private JComponent buildCenterScroll() {
         JPanel outer = new JPanel(new GridBagLayout());
@@ -99,10 +153,11 @@ public class AllgemeineInformationenStudent extends JPanel {
         sp.setBorder(null);
         sp.getViewport().setBackground(BG);
         sp.getVerticalScrollBar().setUnitIncrement(16);
+        
+        SwingUtilities.invokeLater(this::loadExistingAntrag);
+        
         return sp;
     }
-
-    // ================= CARDS =================
 
     private JComponent cardThema() {
         JPanel card = cardBase();
@@ -183,6 +238,7 @@ public class AllgemeineInformationenStudent extends JPanel {
                 cbBetreuer.addItem(name);
             });
         } catch (Exception e) {
+            e.printStackTrace();
             cbBetreuer.addItem("Fehler beim Laden");
         }
 
@@ -231,8 +287,6 @@ public class AllgemeineInformationenStudent extends JPanel {
         return card;
     }
 
-    // ================= BOTTOM =================
-
     private JComponent buildBottomBar() {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(BG);
@@ -241,10 +295,11 @@ public class AllgemeineInformationenStudent extends JPanel {
         JButton back = new JButton("← Zurück");
         back.addActionListener(e -> parent.showPage(StudentFenster.PAGE_DASHBOARD));
 
-        JButton submit = new JButton("Antrag einreichen");
-        submit.setBackground(PRIMARY);
+        JButton submit = new JButton(antragEingereicht ? "Antrag bereits eingereicht" : "Antrag einreichen");
+        submit.setBackground(antragEingereicht ? Color.GRAY : PRIMARY);
         submit.setForeground(Color.WHITE);
         submit.setBorderPainted(false);
+        submit.setEnabled(!antragEingereicht);
         submit.addActionListener(e -> onSave());
 
         bar.add(back, BorderLayout.WEST);
@@ -252,29 +307,75 @@ public class AllgemeineInformationenStudent extends JPanel {
         return bar;
     }
 
-    // ================= ACTIONS =================
-
     private void choosePdf() {
+        if (antragEingereicht) {
+            JOptionPane.showMessageDialog(this, "Antrag bereits eingereicht - keine Änderungen möglich.");
+            return;
+        }
+        
         JFileChooser fc = new JFileChooser();
         if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File f = fc.getSelectedFile();
-            lblNdaFile.setText("Ausgewählt: " + f.getName());
+            ndaFile = fc.getSelectedFile();
+            lblNdaFile.setText("Ausgewählt: " + ndaFile.getName());
         }
     }
 
     private void onSave() {
+        if (antragEingereicht) {
+            JOptionPane.showMessageDialog(this, "Antrag bereits eingereicht.");
+            return;
+        }
+        
         if (cbBetreuer.getSelectedIndex() <= 0) {
             JOptionPane.showMessageDialog(this, "Bitte Betreuer auswählen.");
             return;
         }
+        
+        if (tfTitel.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Bitte Thema eingeben.");
+            return;
+        }
 
         int betreuerId = betreuerIds.get(cbBetreuer.getSelectedIndex() - 1);
+        boolean nda = rbNdaJa.isSelected();
 
-        JOptionPane.showMessageDialog(this,
-                "Antrag eingereicht\nBetreuer-ID: " + betreuerId);
+        try {
+            BachelorarbeitDAO.createAntrag(
+                mnr,
+                betreuerId,
+                tfTitel.getText().trim(),
+                tfUnternehmen.getText().trim(),
+                tfOrt.getText().trim(),
+                tfVon.getText().trim(),
+                tfBis.getText().trim(),
+                tfBetreuerU.getText().trim(),
+                nda
+            );
+            
+            antragEingereicht = true;
+            setFieldsEditable(false);
+            
+            JButton submitBtn = (JButton) ((JPanel) getComponent(1)).getComponent(1);
+            submitBtn.setText("Antrag bereits eingereicht");
+            submitBtn.setBackground(Color.GRAY);
+            submitBtn.setEnabled(false);
+            
+            JOptionPane.showMessageDialog(this, 
+                "Antrag erfolgreich eingereicht!\n" +
+                "Status: Wartet auf Genehmigung durch " + cbBetreuer.getSelectedItem());
+            
+            if (parent != null) {
+                parent.showPage(StudentFenster.PAGE_DASHBOARD);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Fehler beim Speichern: " + e.getMessage(), 
+                "Fehler", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
-
-    // ================= UI HELPERS =================
 
     private JPanel cardBase() {
         JPanel card = new JPanel(new BorderLayout());
@@ -326,5 +427,9 @@ public class AllgemeineInformationenStudent extends JPanel {
         g.fill = GridBagConstraints.HORIZONTAL;
         g.weightx = 1;
         return g;
+    }
+    
+    public boolean isAntragEingereicht() {
+        return antragEingereicht;
     }
 }

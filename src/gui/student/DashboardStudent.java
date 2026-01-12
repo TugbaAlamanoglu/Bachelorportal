@@ -6,9 +6,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/**
- * Dashboard Student (Panel) – Design unverändert, Logik ergänzt
- */
 public class DashboardStudent extends JPanel {
 
     private static final Color BG = StudentFenster.BG;
@@ -22,9 +19,11 @@ public class DashboardStudent extends JPanel {
     private static final Color WARN_BG  = new Color(255, 244, 230);
 
     private final StudentFenster parent;
+    private final int studentMnr;  // NEU: Lokale Kopie der Matrikelnummer
 
     public DashboardStudent(StudentFenster parent, int mnr, String name, String email) {
         this.parent = parent;
+        this.studentMnr = mnr;  // NEU: Parameter speichern
 
         setLayout(new BorderLayout());
         setBackground(BG);
@@ -57,21 +56,46 @@ public class DashboardStudent extends JPanel {
         JPanel cardsRow = new JPanel(new GridLayout(1, 3, 18, 0));
         cardsRow.setOpaque(false);
 
+        String allgemeinStatus = "Noch nicht begonnen";
+        try {
+            datenbank.Bachelorarbeit ba = datenbank.BachelorarbeitDAO.findForStudent(studentMnr);  // GEÄNDERT: studentMnr statt parent.mnr
+            if (ba != null) {
+                if ("eingereicht".equals(ba.getStatus())) {
+                    allgemeinStatus = "Gespeichert. Wartet auf Genehmigung";
+                } else if ("genehmigt".equals(ba.getStatus())) {
+                    allgemeinStatus = "Genehmigt";
+                } else if ("abgelehnt".equals(ba.getStatus())) {
+                    allgemeinStatus = "Abgelehnt";
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         cardsRow.add(makeStatusCard(
                 "Allgemeine Informationen",
                 "Grunddaten Ihrer Bachelorarbeit",
-                "Noch nicht begonnen",
+                allgemeinStatus,
                 () -> parent.showPage(StudentFenster.PAGE_ALLGEMEIN)
         ));
+
+        String anmeldungStatus = "Noch nicht möglich";
+        try {
+            datenbank.Bachelorarbeit ba = datenbank.BachelorarbeitDAO.findForStudent(studentMnr);  // GEÄNDERT: studentMnr statt parent.mnr
+            if (ba != null && "genehmigt".equals(ba.getStatus())) {
+                anmeldungStatus = "Genehmigt";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         cardsRow.add(makeStatusCard(
                 "Anmeldung Bachelorarbeit",
                 "Offizieller Anmeldestatus",
-                "Noch nicht möglich",
+                anmeldungStatus,
                 () -> parent.showPage(StudentFenster.PAGE_ANMELDUNG)
         ));
 
-        // ✅ FIX: nicht auf Feld zugreifen, sondern Methode nutzen
         boolean abgegeben = AbgabeBachelorarbeit.isSubmitted();
 
         cardsRow.add(makeStatusCard(
@@ -116,7 +140,8 @@ public class DashboardStudent extends JPanel {
         pill.setOpaque(true);
         pill.setBorder(new EmptyBorder(6, 12, 6, 12));
 
-        boolean ok =
+        boolean ok = 
+                "Gespeichert. Wartet auf Genehmigung".equals(statusText) ||
                 "Genehmigt".equalsIgnoreCase(statusText) ||
                 "Gespeichert".equalsIgnoreCase(statusText) ||
                 "Eingereicht".equalsIgnoreCase(statusText);
@@ -157,8 +182,6 @@ public class DashboardStudent extends JPanel {
 
         return card;
     }
-
-    // ---------------- Notifications ----------------
 
     private JComponent makeNotificationsCard() {
         JPanel card = new JPanel(new BorderLayout());
